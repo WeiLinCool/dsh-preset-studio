@@ -1,0 +1,119 @@
+{
+  "name": "@tieveto666-code/dsh-preset-studio",
+  "description": "Preset Studio for the dsh web GUI: a settings-section visual IDE for agent presets — the real preset roster projected into a Harness Graph canvas (ReactFlow + dagre), a composition YAML editor with validation, schema-driven config forms from a bundled plugin registry, and preset diff.",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./invariant": {
+      "types": "./lib/types/invariant.d.ts",
+      "default": "./lib/invariant.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-settings-plugins"
+      ],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^1.1.8",
+    "@deepseek-ai/schemastery": "^3.18.2",
+    "@xyflow/react": "^12.11.3",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@deepseek-ai/dsh-client-connection": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-client-locale": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-client-store": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-client-ui-primitives": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-client-ui-renderer": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-client-ui-settings": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-client-ui-settings-plugins": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-client-ui-slots": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-settings": "^0.1.2-alpha.2",
+    "@deepseek-ai/dsh-system-prompt": "^0.1.2-alpha.2",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.20.0",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "^18.3.5",
+    "lightningcss": "^1.32.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsdown": "0.22.2",
+    "typescript": "~5.7.2",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.8"
+  },
+  "files": [
+    "lib",
+    "src",
+    "shared",
+    "scripts",
+    "tests",
+    "cordis.patch.yml",
+    "LICENSE",
+    "README.md",
+    "README.zh.md",
+    "README.i18n.yaml",
+    "tsdown.config.ts",
+    "tsdown.prepare.config.ts",
+    "tsconfig.json",
+    "tsconfig.build.json",
+    "vitest.config.ts",
+    "docs"
+  ],
+  "license": "MIT",
+  "author": "Changsheng Tie <tieveto666-code>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WeiLinCool/dsh-preset-studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WeiLinCool/dsh-preset-studio/issues"
+  },
+  "homepage": "https://github.com/WeiLinCool/dsh-preset-studio#readme",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "agent-preset",
+    "preset-editor",
+    "harness-graph",
+    "reactflow"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "gen:reactflow-css": "node scripts/gen-reactflow-css.mjs",
+    "prepare": "tsdown --config tsdown.prepare.config.ts"
+  }
+}
