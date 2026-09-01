@@ -9,7 +9,7 @@
  *   row's entry provides (declarative knowledge from the bundled registry).
  * `event` and `context` stay reserved in the DSL: they describe runtime flow
  * and are only derivable from a live trace (Phase 2 of the spec).
- * @module @tieveto666-code/dsh-preset-studio/src/core/graph
+ * @module @weilin-cool/dsh-preset-studio/src/core/graph
  */
 
 import { classifyModule } from './classify.ts'

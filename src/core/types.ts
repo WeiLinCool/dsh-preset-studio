@@ -5,7 +5,7 @@
  * visualization projection, never the source of truth — the composition file
  * (`agent.cordis.yml`) is. Every type here is framework-free so the browser
  * bundle, the host half, and the test suite share one vocabulary.
- * @module @tieveto666-code/dsh-preset-studio/src/core/types
+ * @module @weilin-cool/dsh-preset-studio/src/core/types
  */
 
 /** The studio views the section opens on. */

@@ -2,7 +2,7 @@
  * Capability classification: which Runtime Capability category one plugin row
  * belongs to, from its module specifier. Pure heuristics over the module
  * name — the bundled registry's explicit entries win over this fold.
- * @module @tieveto666-code/dsh-preset-studio/src/core/classify
+ * @module @weilin-cool/dsh-preset-studio/src/core/classify
  */
 
 import type { CapabilityKind } from './types.ts'

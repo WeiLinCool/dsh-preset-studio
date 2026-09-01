@@ -10,7 +10,7 @@
  * carry `disabled: !!js <expression>` nodes, and both directions — reading
  * the file and re-emitting an edited row — must keep them as expressions,
  * never as strings.
- * @module @tieveto666-code/dsh-preset-studio/src/core/yaml
+ * @module @weilin-cool/dsh-preset-studio/src/core/yaml
  */
 
 import yaml from 'js-yaml'

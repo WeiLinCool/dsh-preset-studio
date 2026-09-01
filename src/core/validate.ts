@@ -3,7 +3,7 @@
  * that would keep the loader from mounting the composition or that reads as a
  * mistake. The parse/root problems come from {@link parseComposition}; this
  * module adds the row-level checks.
- * @module @tieveto666-code/dsh-preset-studio/src/core/validate
+ * @module @weilin-cool/dsh-preset-studio/src/core/validate
  */
 
 import { buildGraph } from './graph.ts'

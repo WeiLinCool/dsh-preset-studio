@@ -6,7 +6,7 @@
  * source lines and splice text — everything outside the touched row keeps its
  * comments and formatting. Only the edited row is re-emitted from the
  * structured form, so comments INSIDE that row are lost (documented).
- * @module @tieveto666-code/dsh-preset-studio/src/core/edit
+ * @module @weilin-cool/dsh-preset-studio/src/core/edit
  */
 
 import yaml from 'js-yaml'

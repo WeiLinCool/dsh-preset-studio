@@ -1,7 +1,7 @@
 /**
  * Preset diff (spec §九): line-level diff for the composition text and a
  * row-set diff answering which capability rows were added / removed.
- * @module @tieveto666-code/dsh-preset-studio/src/core/diff
+ * @module @weilin-cool/dsh-preset-studio/src/core/diff
  */
 
 import { flattenRows, parseComposition } from './yaml.ts'

@@ -3,7 +3,7 @@
  * form fields — numbers with a range become sliders, booleans become switches,
  * enums become selects. The UI layer renders these descriptors; nothing here
  * imports React.
- * @module @tieveto666-code/dsh-preset-studio/src/core/schema-form
+ * @module @weilin-cool/dsh-preset-studio/src/core/schema-form
  */
 
 import type { JsonObjectSchema, JsonSchemaProperty } from './types.ts'

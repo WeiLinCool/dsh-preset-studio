@@ -7,7 +7,7 @@
  * packages/host/plugin-inventory/src/types.ts) because the published npm
  * versions of the host packages lag the running web profile. They are plain
  * JSON payloads — the browser only ever sees these fields.
- * @module @tieveto666-code/dsh-preset-studio/src/client/wire
+ * @module @weilin-cool/dsh-preset-studio/src/client/wire
  */
 
 import type { Context } from '@deepseek-ai/cordis'

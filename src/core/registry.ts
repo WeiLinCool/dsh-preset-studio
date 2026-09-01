@@ -12,7 +12,7 @@
  *
  * Config schemas only carry fields verified against the shipped presets; an
  * unknown field stays editable in the YAML view.
- * @module @tieveto666-code/dsh-preset-studio/src/core/registry
+ * @module @weilin-cool/dsh-preset-studio/src/core/registry
  */
 
 import type { RegistryEntry } from './types.ts'

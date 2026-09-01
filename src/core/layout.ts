@@ -4,7 +4,7 @@
  * Compositions are small (a preset is tens of rows) and inherently ordered,
  * so the studio ships the dagre layout only — the spec's d3-force/ELK
  * alternatives stay out until graphs outgrow hierarchy.
- * @module @tieveto666-code/dsh-preset-studio/src/core/layout
+ * @module @weilin-cool/dsh-preset-studio/src/core/layout
  */
 
 import dagre from '@dagrejs/dagre'
