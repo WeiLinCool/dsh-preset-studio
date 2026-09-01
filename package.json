@@ -1,5 +1,5 @@
 {
-  "name": "@tieveto666-code/dsh-preset-studio",
+  "name": "@weilin-cool/dsh-preset-studio",
   "description": "Preset Studio for the dsh web GUI: a settings-section visual IDE for agent presets — the real preset roster projected into a Harness Graph canvas (ReactFlow + dagre), a composition YAML editor with validation, schema-driven config forms from a bundled plugin registry, and preset diff.",
   "version": "0.1.0",
   "type": "module",
@@ -93,7 +93,7 @@
     "docs"
   ],
   "license": "MIT",
-  "author": "Changsheng Tie <tieveto666-code>",
+  "author": "WeiLinCool <398508837@qq.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/WeiLinCool/dsh-preset-studio.git"
