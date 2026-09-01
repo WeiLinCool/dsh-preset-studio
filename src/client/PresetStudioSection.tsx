@@ -14,7 +14,6 @@ import type { StudioView } from '../core/types.ts'
 import type { PresetStudioKey } from './locales.ts'
 import { GraphCanvas } from './graph/GraphCanvas.tsx'
 import { ExplorerPanel } from './panels/ExplorerPanel.tsx'
-import { PalettePanel } from './panels/PalettePanel.tsx'
 import { InspectorPanel } from './panels/InspectorPanel.tsx'
 import { ComposerPanel } from './panels/ComposerPanel.tsx'
 import { DiffPanel } from './panels/DiffPanel.tsx'
@@ -35,6 +34,8 @@ export interface PresetStudioSectionInjected {
     applyRowConfig: (nodeId: string, path: string, value: unknown) => boolean
     removeRow: (nodeId: string) => boolean
     addRow: (block: string) => void
+    addRowAfter: (nodeId: string, block: string) => void
+    addRowToGroup: (nodeId: string, block: string) => void
     beginCopy: (from: string) => void
     cancelCopy: () => void
     setCopyId: (id: string) => void
@@ -157,17 +158,13 @@ export function PresetStudioBody({ usePresetStudio, t, actions }: PresetStudioBo
           <div className={css.graphBody}>
             <div className={css.rail}>
               <ExplorerPanel state={state} actions={actions} t={t} />
-              <PalettePanel
-                inventoryEntries={state.inventory?.entries ?? []}
-                actions={actions}
-                t={t}
-              />
             </div>
             <GraphCanvas
               graph={state.graph}
               selectedNodeId={state.selectedNodeId}
               version={state.draft}
               actions={actions}
+              inventoryEntries={state.inventory?.entries ?? []}
               emptyText={t('graph.empty')}
               legend={{
                 data: t('graph.legend.sequence'),
@@ -188,6 +185,8 @@ export function PresetStudioBody({ usePresetStudio, t, actions }: PresetStudioBo
               searchPlaceholder={t('graph.searchPlaceholder')}
               toolbarLabel={t('graph.toolbar')}
               clearLabel={t('graph.clear')}
+              addRelatedLabel={t('graph.addRelated')}
+              t={t}
             />
             <div className={`${css.rail} ${css.railRight}`}>
               <InspectorPanel

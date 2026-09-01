@@ -1,4 +1,4 @@
-# @tieveto666-code/dsh-preset-studio
+# @WeiLinCool/dsh-preset-studio
 
 [中文](README.zh.md) | English
 
@@ -20,16 +20,16 @@ The official Agent Presets section creates / deletes / makes default, but compos
 - **Composition YAML editor** — live parse → graph + validation; errors/warnings locate the row (`r0.1`). Exporting is saving (the Host deliberately refuses composition writes over the wire).
 - **Preset diff** — A/B picker: the official DiffBlock line diff plus a capability-row added/removed summary.
 - **Native fit** — no settings-page menu entry: the studio opens from the home launchers (hero row / session header), and the Settings → Plugins card carries enablement; follows `--dsw-*` theme tokens.
-- **Full-page studio** — a launcher above the home composer opens the same studio as a full-frame page (via the shell overlay), giving the graph, YAML editor, palette, and inspector the room the settings dialog cannot.
+- **Full-page studio** — a launcher above the home composer opens the same studio as a full-frame page (via the shell overlay), giving the graph, YAML editor, add-node menu, and inspector the room the settings dialog cannot.
 
 ## Feature overview
 
 - Preset explorer: built-in / custom groups, default and unmountable badges, real per-preset row counts.
 - Home launcher: a "Preset Studio" button beside the agent-preset selector on the new-session hero, and next to the preset label in an active session's header (opens the full-page studio; Escape or the header button closes it).
 - Canvas toolbar: bottom toolbar with capability-kind chips (highlight + fit-to-category) and node search (live match highlight, count, prev/next locate).
-- Harness Graph canvas (ReactFlow + dagre): draggable nodes, click-to-inspect, hover highlight.
+- Harness Graph canvas (ReactFlow + dagre): draggable nodes, click-to-inspect, hover highlight; selecting a node highlights its edges with a green particle flow.
 - Node inspector: row id / module / capability kind / enablement (including `!!js` condition source) / config form / raw JSON / remove-row-from-draft.
-- Components / Plugins palette: bundled registry grouped by capability plus unregistered installed plugins; click or drag onto the canvas to append a YAML row (row surgery rewrites only the edited row; comments outside it survive).
+- In-canvas add-related-node menu: right-click a node, or use the ＋ on a selected node, to insert a related component by capability category (group anchors may add inside the group); the menu groups by category and filters by name/module/description plus category chips; a global ＋ button covers the empty canvas. Row surgery rewrites only the inserted row; comments outside it survive.
 - Composition YAML: live validation, clipboard copy, download `agent.cordis.yml` / `preset.yml`, one-click "copy as new preset" (the Host's only authoring write).
 - Diff view: composition line diff + row-set diff.
 - Settings card (Settings → Plugins): `enabled`, `announceToAgent`, `defaultView`.

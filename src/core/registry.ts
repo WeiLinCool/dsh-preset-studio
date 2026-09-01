@@ -7,8 +7,8 @@
  * wire, so the studio ships a catalog of well-known rows — their category,
  * their declarative provides/consumes (used to derive `service` edges), their
  * JSON Schema config (used by the schema-driven form), and the YAML fragment
- * the palette adds. Rows the catalog does not know are still rendered, just
- * with no schema form and no service edges.
+ * the add-node menu inserts. Rows the catalog does not know are still
+ * rendered, just with no schema form and no service edges.
  *
  * Config schemas only carry fields verified against the shipped presets; an
  * unknown field stays editable in the YAML view.

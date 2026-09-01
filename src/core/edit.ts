@@ -2,8 +2,8 @@
  * Row surgery: line-range editing of the composition draft.
  *
  * The studio edits the YAML text, not an AST, so edits that touch one row
- * (config form writes, row removal, palette appends) locate the row's source
- * lines and splice text — everything outside the touched row keeps its
+ * (config form writes, row removal, positioned inserts) locate the row's
+ * source lines and splice text — everything outside the touched row keeps its
  * comments and formatting. Only the edited row is re-emitted from the
  * structured form, so comments INSIDE that row are lost (documented).
  * @module @tieveto666-code/dsh-preset-studio/src/core/edit
@@ -206,6 +206,56 @@ export function removeRow(text: string, indexPath: readonly number[]): string | 
 export function appendRow(text: string, block: string): string {
   const entry = block.endsWith('\n') ? block : `${block}\n`
   return text === '' ? entry : text.endsWith('\n') ? `${text}${entry}` : `${text}\n${entry}`
+}
+
+/** Indent every non-blank line of a YAML block by `indent` spaces. */
+function indentBlock(block: string, indent: number): string {
+  const pad = ' '.repeat(indent)
+  return block.split('\n').map(line => line === '' ? '' : `${pad}${line}`).join('\n')
+}
+
+/** Splice block lines into a line array, trimming blank padding at the seam. */
+function spliceBlockLines(lines: readonly string[], index: number, blockLines: readonly string[]): string[] {
+  let before = lines.slice(0, index)
+  let after = lines.slice(index)
+  while (before.length > 0 && before[before.length - 1] === '') before = before.slice(0, -1)
+  while (after.length > 0 && after[0] === '') after = after.slice(1)
+  return [...before, ...blockLines, ...after]
+}
+
+/**
+ * Insert a YAML row block immediately after one row, at that row's own
+ * indentation (so a nested row inserts a sibling inside its group).
+ * @param text - the composition draft.
+ * @param indexPath - the anchor row's index path.
+ * @param block - the YAML list entry to insert.
+ * @returns the new draft, or null when the path is out of bounds.
+ */
+export function insertRowAfter(text: string, indexPath: readonly number[], block: string): string | null {
+  const range = rowLineRange(text, indexPath)
+  if (range === null) return null
+  const lines = text.split('\n')
+  const body = block.replace(/\n+$/, '')
+  const blockLines = body === '' ? [] : indentBlock(body, indentOf(text, range)).split('\n')
+  return spliceBlockLines(lines, range.end, blockLines).join('\n')
+}
+
+/**
+ * Insert a YAML row block as the last member of a `cordis:group` row.
+ * @param text - the composition draft.
+ * @param indexPath - the group row's index path.
+ * @param block - the YAML list entry to insert (indented as a child).
+ * @returns the new draft, or null when the anchor is not a group with members.
+ */
+export function insertGroupMember(text: string, indexPath: readonly number[], block: string): string | null {
+  const range = rowLineRange(text, indexPath)
+  if (range === null) return null
+  const lines = text.split('\n')
+  const child = childIndent(lines, range.start + 1, range.end)
+  if (child === null) return null
+  const body = block.replace(/\n+$/, '')
+  const blockLines = body === '' ? [] : indentBlock(body, child).split('\n')
+  return spliceBlockLines(lines, range.end, blockLines).join('\n')
 }
 
 /** Walk one row out of a parsed tree by index path. */

@@ -25,6 +25,16 @@ const EDGE_STYLE: Readonly<Record<EdgeType, { color: string; dash: string | unde
   context: { color: '#2f9e6f', dash: '2 4' },
 }
 
+/** Selected-edge highlight: emerald stroke + particles flowing along the path. */
+const ACTIVE_COLOR = '#2f9e6f'
+const PARTICLE_COLOR = '#4ade80'
+const PARTICLE_COUNT = 4
+/** Staggered SMIL begin offsets (negative starts mid-cycle). */
+const PARTICLE_BEGINS: readonly string[] = Array.from(
+  { length: PARTICLE_COUNT },
+  (_, index) => `${-0.45 * index}s`,
+)
+
 /** Render one harness edge. */
 export function HarnessEdgeView(props: EdgeProps) {
   const data = (props.data ?? { edgeType: 'data' }) as unknown as HarnessEdgeData
@@ -45,23 +55,41 @@ export function HarnessEdgeView(props: EdgeProps) {
         id={props.id}
         className={`react-flow__edge-path${active ? ` ${css.edgeActive}` : ''}`}
         d={path}
-        stroke={style.color}
-        strokeWidth={active ? 2.6 : 1.6}
+        stroke={active ? ACTIVE_COLOR : style.color}
+        strokeWidth={active ? 3 : 1.6}
         strokeDasharray={style.dash}
         markerEnd={props.markerEnd ?? `url(#marker-${props.id})`}
       />
       {active
         ? (
-          <path
-            className={`${css.edgeFlow} react-flow__edge-path`}
-            d={path}
-            fill="none"
-            stroke={style.color}
-            strokeWidth={2.2}
-            strokeDasharray="7 7"
-            strokeLinecap="round"
-            markerEnd={props.markerEnd ?? `url(#marker-${props.id})`}
-          />
+          <>
+            <path
+              className={`${css.edgeFlow} react-flow__edge-path`}
+              d={path}
+              fill="none"
+              stroke={PARTICLE_COLOR}
+              strokeWidth={2.4}
+              strokeDasharray="3 14"
+              strokeLinecap="round"
+              markerEnd={props.markerEnd ?? `url(#marker-${props.id})`}
+            />
+            {PARTICLE_BEGINS.map((begin, index) => (
+              <circle
+                key={index}
+                className={css.edgeParticle}
+                r={2.6}
+                fill={PARTICLE_COLOR}
+                opacity={0.9}
+              >
+                <animateMotion
+                  dur="1.8s"
+                  repeatCount="indefinite"
+                  path={path}
+                  begin={begin}
+                />
+              </circle>
+            ))}
+          </>
         )
         : null}
       {props.label !== undefined
@@ -89,7 +117,7 @@ export function HarnessEdgeView(props: EdgeProps) {
           orient="auto-start-reverse"
           markerUnits="strokeWidth"
         >
-          <path d="M2 2 L10 6 L2 10 z" fill={style.color} />
+          <path d="M2 2 L10 6 L2 10 z" fill={active ? ACTIVE_COLOR : style.color} />
         </marker>
       </defs>
     </g>

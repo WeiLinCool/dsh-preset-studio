@@ -78,6 +78,19 @@ export interface PresetStudioKeyShape {  // ── settings card ─────
   'graph.toolbar': string
   'graph.clear': string
   'graph.unknown': string
+  'graph.addRelated': string
+  'graph.addAfter': string
+  'graph.addToGroup': string
+  'graph.addMode': string
+  'graph.addEmpty': string
+  'graph.addEmptyHint': string
+  'graph.alreadyExists': string
+  'graph.menuEmpty': string
+  'graph.addMenuAria': string
+  'graph.addFilterPlaceholder': string
+  'graph.addFilterAll': string
+  'graph.addFilterKind': string
+  'graph.addFilterEmpty': string
   // ── inspector ────────────────────────────────────────────────────────────
   'inspector.title': string
   'inspector.empty': string
@@ -225,6 +238,19 @@ export const zh: PresetStudioKeyShape = {
   'graph.toolbar': '画布工具栏',
   'graph.clear': '清除筛选',
   'graph.unknown': '未知行',
+  'graph.addRelated': '添加关联节点',
+  'graph.addAfter': '同级插入',
+  'graph.addToGroup': '加入组内',
+  'graph.addMode': '添加位置',
+  'graph.addEmpty': '添加节点',
+  'graph.addEmptyHint': '追加到组合末尾',
+  'graph.alreadyExists': '已存在',
+  'graph.menuEmpty': '没有可添加的组件。',
+  'graph.addMenuAria': '添加关联节点菜单',
+  'graph.addFilterPlaceholder': '搜索名称 / 模块 / 描述',
+  'graph.addFilterAll': '全部',
+  'graph.addFilterKind': '按分类筛选',
+  'graph.addFilterEmpty': '没有匹配的组件。',
   'inspector.title': '节点检查器',
   'inspector.empty': '点击图谱节点查看该行的详情与配置表单。',
   'inspector.rowId': 'Row id',
@@ -367,6 +393,19 @@ export const en: Record<PresetStudioKey, string> = {
   'graph.toolbar': 'Canvas toolbar',
   'graph.clear': 'Clear filters',
   'graph.unknown': 'Unknown row',
+  'graph.addRelated': 'Add related node',
+  'graph.addAfter': 'Insert in same scope',
+  'graph.addToGroup': 'Add inside group',
+  'graph.addMode': 'Insert location',
+  'graph.addEmpty': 'Add node',
+  'graph.addEmptyHint': 'Append to the composition end',
+  'graph.alreadyExists': 'already present',
+  'graph.menuEmpty': 'No components to add.',
+  'graph.addMenuAria': 'Add related node menu',
+  'graph.addFilterPlaceholder': 'Search name / module / description',
+  'graph.addFilterAll': 'All',
+  'graph.addFilterKind': 'Filter by category',
+  'graph.addFilterEmpty': 'No matching components.',
   'inspector.title': 'Inspector',
   'inspector.empty': 'Click a graph node to inspect its row and config form.',
   'inspector.rowId': 'Row id',

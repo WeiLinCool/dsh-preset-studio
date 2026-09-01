@@ -124,7 +124,7 @@ export interface RegistryEntry {
   readonly consumes: readonly string[]
   /** Curated config schema; absent means "edit the YAML directly". */
   readonly configSchema?: JsonObjectSchema
-  /** YAML fragment appended when the row is added through the palette. */
+  /** YAML fragment inserted when the row is added through the add-node menu. */
   readonly template: string
 }
 

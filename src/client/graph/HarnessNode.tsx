@@ -3,6 +3,7 @@
  * Capability card — row id, module, capability kind, enablement state.
  */
 import { Handle, Position } from '@xyflow/react'
+import type { MouseEvent } from 'react'
 import type { HarnessNode } from '../../core/types.ts'
 import css from '../presetstudio.module.css'
 
@@ -16,6 +17,10 @@ export interface HarnessNodeData {
   dimmed?: boolean
   /** Whether the node is a direct dependency neighbor of the selected node. */
   related?: boolean
+  /** Open the add-related-node menu anchored at this node. */
+  onAddRelated?: (event: MouseEvent<HTMLButtonElement>) => void
+  /** Accessible label for the node's ＋ button. */
+  addRelatedLabel?: string
 }
 
 /** Kind → CSS module class (the dot color). */
@@ -44,7 +49,7 @@ interface HarnessNodeViewProps {
 
 /** Render one harness node. */
 export function HarnessNodeView({ data, selected = false }: HarnessNodeViewProps) {
-  const { node, matched = false, dimmed = false, related = false } = data
+  const { node, matched = false, dimmed = false, related = false, onAddRelated, addRelatedLabel } = data
   const stateClass = node.enabled === true ? css.stateOn : node.enabled === false ? css.stateOff : css.stateConditional
   const stateLabel = node.enabled === true ? 'on' : node.enabled === false ? 'off' : 'conditional'
   const boxClass = [
@@ -75,6 +80,19 @@ export function HarnessNodeView({ data, selected = false }: HarnessNodeViewProps
         </span>
         {node.hasChildren ? <span className={css.nodeState}>· group</span> : null}
       </div>
+      {selected && onAddRelated !== undefined
+        ? (
+          <button
+            type="button"
+            className={css.nodeAdd}
+            aria-label={addRelatedLabel ?? 'Add related node'}
+            onPointerDown={(event) => { event.stopPropagation() }}
+            onClick={(event) => { event.stopPropagation(); onAddRelated(event) }}
+          >
+            <span aria-hidden="true">＋</span>
+          </button>
+        )
+        : null}
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
     </div>
   )

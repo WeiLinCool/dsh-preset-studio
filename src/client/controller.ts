@@ -10,7 +10,7 @@
  * roster did not already carry).
  */
 import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { appendRow, editRowConfig, removeRow as spliceRemoveRow } from '../core/edit.ts'
+import { appendRow, editRowConfig, insertGroupMember, insertRowAfter, removeRow as spliceRemoveRow } from '../core/edit.ts'
 import { buildGraph } from '../core/graph.ts'
 import type { HarnessGraph, StudioView } from '../core/types.ts'
 import { parseComposition } from '../core/yaml.ts'
@@ -294,6 +294,33 @@ export class PresetStudioController {
   /** Append one YAML row block (palette drag / click) to the draft. */
   addRow(block: string): void {
     this.setDraft(appendRow(this.store.getSnapshot().draft, block))
+  }
+
+  /**
+   * Insert one row right after an existing node, at that node's own scope
+   * (a nested row inserts a sibling inside its group).
+   * @param nodeId - the anchor graph node.
+   * @param block - the YAML list entry to insert.
+   */
+  addRowAfter(nodeId: string, block: string): void {
+    const indexPath = nodeIndexPath(nodeId)
+    if (indexPath === null) return
+    const next = insertRowAfter(this.store.getSnapshot().draft, indexPath, block)
+    if (next === null) return
+    this.setDraft(next)
+  }
+
+  /**
+   * Insert one row as the last member of a group node.
+   * @param nodeId - the group anchor graph node.
+   * @param block - the YAML list entry to insert (indented as a child).
+   */
+  addRowToGroup(nodeId: string, block: string): void {
+    const indexPath = nodeIndexPath(nodeId)
+    if (indexPath === null) return
+    const next = insertGroupMember(this.store.getSnapshot().draft, indexPath, block)
+    if (next === null) return
+    this.setDraft(next)
   }
 
   /** Open the copy dialog over one preset. */
