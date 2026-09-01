@@ -10,10 +10,16 @@ import css from '../presetstudio.module.css'
 export interface HarnessNodeData {
   /** The capability row this node projects. */
   node: HarnessNode
+  /** Whether the node passes the current search / category filter. */
+  matched?: boolean
+  /** Whether the node is dimmed by an active filter (not a match). */
+  dimmed?: boolean
+  /** Whether the node is a direct dependency neighbor of the selected node. */
+  related?: boolean
 }
 
 /** Kind → CSS module class (the dot color). */
-const KIND_CLASS: Readonly<Record<string, string>> = {
+export const KIND_CLASS: Readonly<Record<string, string>> = {
   model: css.kindModel,
   loop: css.kindLoop,
   memory: css.kindMemory,
@@ -26,7 +32,7 @@ const KIND_CLASS: Readonly<Record<string, string>> = {
 }
 
 /** Short display form of a module specifier. */
-function shortModule(moduleName: string | undefined): string {
+export function shortModule(moduleName: string | undefined): string {
   if (moduleName === undefined) return ''
   return moduleName.replace(/^@deepseek-ai\/dsh-/, '').replace(/^@deepseek-ai\//, '')
 }
@@ -38,16 +44,19 @@ interface HarnessNodeViewProps {
 
 /** Render one harness node. */
 export function HarnessNodeView({ data, selected = false }: HarnessNodeViewProps) {
-  const { node } = data
+  const { node, matched = false, dimmed = false, related = false } = data
   const stateClass = node.enabled === true ? css.stateOn : node.enabled === false ? css.stateOff : css.stateConditional
   const stateLabel = node.enabled === true ? 'on' : node.enabled === false ? 'off' : 'conditional'
   const boxClass = [
     css.node,
     node.kind === 'group' ? css.nodeGroup : '',
-    selected ? css.nodeSelected : '',
+    selected ? `${css.nodeSelected} ${css.nodeActive}` : '',
+    matched ? css.nodeMatch : '',
+    related && !selected ? css.nodeRelated : '',
+    dimmed ? css.nodeDimmed : '',
   ].filter(Boolean).join(' ')
   return (
-    <div className={boxClass} data-kind={node.kind}>
+    <div className={boxClass} data-kind={node.kind} data-matched={matched || undefined} data-dimmed={dimmed || undefined}>
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <div className={css.nodeHead}>
         <span className={`${css.kindDot} ${KIND_CLASS[node.kind] ?? css.kindOther}`} />

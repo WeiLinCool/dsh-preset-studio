@@ -36,6 +36,8 @@ export interface PresetStudioKeyShape {  // ── settings card ─────
   // ── section ──────────────────────────────────────────────────────────────
   'nav': string
   'intro': string
+  'home.button': string
+  'page.title': string
   'loading': string
   'error': string
   'retry': string
@@ -72,6 +74,9 @@ export interface PresetStudioKeyShape {  // ── settings card ─────
   'graph.legend.membership': string
   'graph.legend.service': string
   'graph.empty': string
+  'graph.searchPlaceholder': string
+  'graph.toolbar': string
+  'graph.clear': string
   'graph.unknown': string
   // ── inspector ────────────────────────────────────────────────────────────
   'inspector.title': string
@@ -181,6 +186,8 @@ export const zh: PresetStudioKeyShape = {
   'settings.invalidNumber': '请输入数字，或留空使用默认值。',
   'nav': 'Preset Studio',
   'intro': '把每个 agent preset 的组合文件（agent.cordis.yml）投影为 Harness Graph：节点是组合里的 Runtime Capability，边只画组合文件能证明的关系。官方「Agent 预设」板块负责创建与删除，这里负责看懂与设计组合。',
+  'home.button': '预设配置',
+  'page.title': 'Preset Studio · 预设配置',
   'loading': '加载中…',
   'error': '加载失败',
   'retry': '重试',
@@ -214,6 +221,9 @@ export const zh: PresetStudioKeyShape = {
   'graph.legend.membership': '归属 lifecycle',
   'graph.legend.service': '服务依赖 service',
   'graph.empty': '组合为空或无法解析：请在「组合 YAML」视图修正后再回到图谱。',
+  'graph.searchPlaceholder': '搜索节点 / 模块 / row id',
+  'graph.toolbar': '画布工具栏',
+  'graph.clear': '清除筛选',
   'graph.unknown': '未知行',
   'inspector.title': '节点检查器',
   'inspector.empty': '点击图谱节点查看该行的详情与配置表单。',
@@ -318,6 +328,8 @@ export const en: Record<PresetStudioKey, string> = {
   'settings.invalidNumber': 'Enter a number, or leave empty to inherit the default.',
   'nav': 'Preset Studio',
   'intro': 'Projects each agent preset\'s composition (agent.cordis.yml) into a Harness Graph: nodes are Runtime Capabilities, edges only what the composition file proves. The official Agent Presets section creates and deletes presets; this studio exists to read and design compositions.',
+  'home.button': 'Preset Studio',
+  'page.title': 'Preset Studio',
   'loading': 'Loading…',
   'error': 'Load failed',
   'retry': 'Retry',
@@ -351,6 +363,9 @@ export const en: Record<PresetStudioKey, string> = {
   'graph.legend.membership': 'ownership · lifecycle',
   'graph.legend.service': 'dependency · service',
   'graph.empty': 'The composition is empty or unparseable: fix it in the Composition YAML view, then return to the graph.',
+  'graph.searchPlaceholder': 'Search nodes / modules / row id',
+  'graph.toolbar': 'Canvas toolbar',
+  'graph.clear': 'Clear filters',
   'graph.unknown': 'Unknown row',
   'inspector.title': 'Inspector',
   'inspector.empty': 'Click a graph node to inspect its row and config form.',

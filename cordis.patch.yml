@@ -9,4 +9,4 @@
 # (exports "./client", served at /plugins/<id>/client.js) load in the web GUI.
 - insert:
     - id: ui-preset-studio
-      name: '@tieveto666-code/dsh-preset-studio'
+      name: '@WeiLinCool/dsh-preset-studio'

@@ -1,15 +1,15 @@
 ---
-description: "preset 可视化编辑器：把 agent preset 组合投影为 Harness Graph 的 dsh web 插件（设置 → Preset Studio）。"
+description: "preset 可视化编辑器：把 agent preset 组合投影为 Harness Graph 的 dsh web 插件（首页「预设配置」按钮打开全页工作室，不占用设置页菜单）。"
 ---
 
-# @tieveto666-code/dsh-preset-studio
+# @WeiLinCool/dsh-preset-studio
 
 [English](README.md) | 中文
 
 [![powered by dsh](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
 
-把 **agent preset 的组合文件（`agent.cordis.yml`）** 变成可交互的 **Harness Graph**：节点不是「步骤」，而是组合里的 **Runtime Capability**；边只画组合文件能证明的关系。这是一个「Agent Runtime 架构编辑器」，而不是又一个 workflow 画布。
+把 **agent preset 的组合文件（`agent.cordis.yml`）** 变成可交互的 **Harness Graph**：节点不是「步骤」，而是组合里的 **Runtime Capability**；边只画组合文件能证明的关系。这是一个「Agent Runtime 架构编辑器」，而不是又一个 workflow 画布。首页新增「预设配置」按钮，直接从主页打开**全页** Preset Studio（不再占用设置页菜单，也不再挤在设置弹窗里）。
 
 > 发现约定：请为本仓库添加 GitHub Topic [`dsh-plugin`](https://github.com/topics/dsh-plugin)。安装不依赖任何「官方认证」，有地址即可 `dsh plugin add`。
 
@@ -23,11 +23,14 @@ description: "preset 可视化编辑器：把 agent preset 组合投影为 Harne
 - **Schema-driven UI** — 内置注册表为常见行（persona、tool-web、agent-instructions…）携带 JSON Schema，配置表单自动生成：数值区间变滑块、布尔变开关、枚举变下拉。
 - **组合 YAML 编辑器** — 实时解析 → 图谱与校验联动；错误/警告带行号（r0.1 定位）。导出即保存（Host 刻意拒绝组合文本写回，这是安全边界）。
 - **预设差异对比** — A/B 双选：官方 DiffBlock 行级差异 + 能力行增删摘要（架构文档 §九）。
-- **融入官方界面** — 注册为官方设置板块（设置 → Preset Studio），与「Agent 预设」板块并列；外观跟随 `--dsw-*` 主题。
+- **不占用设置菜单** — 设置页不再注册「Preset Studio」板块，工作室完全从首页入口打开；设置 → 插件配置仍有启用开关，外观跟随 `--dsw-*` 主题。
+- **全页模式** — 首页「预设配置」按钮（空对话时在预设选择旁边、有对话时在顶部预设标签旁）把同一套工作室打开为整页（经 `shell.overlay`），图谱、YAML 编辑器、组件面板与检查器拥有设置弹窗给不出的空间。
 
 ## 能力一览
 
 - **预设浏览器**：内置 / 自定义分组，默认 / 不可挂载徽标，每预设真实组合行数（来自 pluginInventory）。
+- **首页入口**：空对话时按钮出现在工作区预设选择旁边；有对话时出现在顶部标题区预设标签旁边，点击一键打开全页工作室；Esc 或右上角按钮关闭。
+- **画布工具栏**：底部工具栏提供能力分类芯片（高亮并定位到该类别节点）与节点搜索（实时高亮匹配、计数、前后跳转定位）。
 - **Harness Graph 画布**（ReactFlow + dagre）：拖拽节点、点击查看详情、悬停高亮。
 - **节点检查器**：row id / 模块 / 能力类别 / 启用状态（含 `!!js` 条件表达式原文）/ 配置表单 / 原始 JSON / 从草稿删除该行。
 - **组件 / 插件面板**：内置注册表按能力分组 + 真实 pluginInventory 中未收录的插件；点击或拖拽到画布即向草稿追加一行 YAML（Row surgery：只重写被编辑的行，行外注释与格式保留）。

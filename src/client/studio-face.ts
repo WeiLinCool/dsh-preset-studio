@@ -1,22 +1,18 @@
 /**
- * Settings-section registration for the Preset Studio.
+ * Shared registrant face for every Preset Studio surface: the controller's
+ * store and actions bound once, used by the home launchers and the full-page
+ * overlay so they all share one snapshot and never diverge.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import { PresetStudioSection, type PresetStudioSectionInjected } from './PresetStudioSection.tsx'
+import type { PresetStudioSectionInjected } from './PresetStudioSection.tsx'
 import type { PresetStudioController } from './controller.ts'
 
-/** Stable id of the studio settings section entry. */
-export const PRESET_STUDIO_SECTION_ID = 'preset-studio'
-
 /**
- * Register the studio as a settings section.
- * @param ctx - client root context.
- * @param controller - the studio controller driving the section.
- * @param label - localized nav label.
- * @returns disposer unregistering the section.
+ * Build the registrant face binding the controller's store and actions.
+ * @param controller - the studio controller.
+ * @returns the inject factory the slot registrations pass.
  */
-export function mountSection(ctx: ClientContext, controller: PresetStudioController, label: () => string): () => void {
-  const injected = (): PresetStudioSectionInjected => ({
+export function createPresetStudioFace(controller: PresetStudioController): () => PresetStudioSectionInjected {
+  return () => ({
     hooks: { presetStudio: controller.store },
     actions: {
       load: () => controller.load(),
@@ -36,14 +32,8 @@ export function mountSection(ctx: ClientContext, controller: PresetStudioControl
       remove: () => controller.remove(),
       setDiffSide: (side: 'left' | 'right', id: string | null) => controller.setDiffSide(side, id),
       openPresetLocation: (id: string) => controller.openPresetLocation(id),
+      openHome: () => { controller.openHome() },
+      closeHome: () => { controller.closeHome() },
     },
   })
-  return ctx.slots.inject('settings.section', () => ctx.slots.register({
-    name: 'settings.section',
-    id: PRESET_STUDIO_SECTION_ID,
-    order: 30,
-    label,
-    locale: 'preset-studio',
-    inject: injected,
-  }, PresetStudioSection))
 }

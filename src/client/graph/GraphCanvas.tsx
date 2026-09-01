@@ -1,14 +1,18 @@
 /**
  * The Harness Graph canvas: dagre-laid-out composition DAG on ReactFlow, with
- * the palette drop target and the edge-type legend.
+ * the palette drop target, a bottom toolbar (category highlight / locate and
+ * node search), and the edge-type legend.
  */
-import { useMemo } from 'react'
-import { Background, BackgroundVariant, Controls, ReactFlow, type Edge, type Node } from '@xyflow/react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import {
+  Background, BackgroundVariant, Controls, ReactFlow,
+  type Edge, type Node, type ReactFlowInstance,
+} from '@xyflow/react'
 import { layoutGraph } from '../../core/layout.ts'
-import type { HarnessGraph } from '../../core/types.ts'
+import type { CapabilityKind, HarnessGraph } from '../../core/types.ts'
 import css from '../presetstudio.module.css'
 import { HarnessEdgeView, type HarnessEdgeData } from './HarnessEdge.tsx'
-import { HarnessNodeView, type HarnessNodeData } from './HarnessNode.tsx'
+import { HarnessNodeView, KIND_CLASS, shortModule, type HarnessNodeData } from './HarnessNode.tsx'
 
 export interface GraphCanvasActions {
   selectNode: (id: string | null) => void
@@ -23,33 +27,181 @@ interface GraphCanvasProps {
   actions: GraphCanvasActions
   emptyText: string
   legend: { data: string; lifecycle: string; service: string }
+  /** Display labels for every capability kind (toolbar chips). */
+  kindLabels: Readonly<Record<CapabilityKind, string>>
+  /** Search input placeholder. */
+  searchPlaceholder: string
+  /** Toolbar aria label. */
+  toolbarLabel: string
+  /** Clear-filters button aria label. */
+  clearLabel: string
 }
 
 /** The canvas node types (stable identity — ReactFlow re-creates on change). */
 const nodeTypes = { harness: HarnessNodeView }
 const edgeTypes = { harness: HarnessEdgeView }
 
+/** Every capability kind, in the toolbar's display order. */
+const KINDS: readonly CapabilityKind[] = [
+  'model', 'loop', 'memory', 'tool', 'skill', 'storage', 'persona', 'group', 'other',
+]
+
+/** The searchable text of one node: id, row id, module (short and full), and kind label. */
+function nodeSearchText(node: HarnessGraph['nodes'][number], kindLabels: Readonly<Record<CapabilityKind, string>>): string {
+  return [
+    node.id,
+    node.rowId ?? '',
+    shortModule(node.moduleName),
+    node.moduleName ?? '',
+    node.kind,
+    kindLabels[node.kind] ?? '',
+  ].join(' ').toLowerCase()
+}
+
+/** Matching node ids under a query + category filter (empty query/set disables that clause). */
+function computeMatchIds(
+  graph: HarnessGraph,
+  queryLower: string,
+  activeKinds: ReadonlySet<CapabilityKind>,
+  kindLabels: Readonly<Record<CapabilityKind, string>>,
+): string[] {
+  const kindActive = activeKinds.size > 0
+  return graph.nodes
+    .filter((node) => {
+      const kindOk = !kindActive || activeKinds.has(node.kind)
+      const queryOk = queryLower === '' || nodeSearchText(node, kindLabels).includes(queryLower)
+      return kindOk && queryOk
+    })
+    .map(node => node.id)
+}
+
 /**
  * Render the graph canvas.
  * @param props - the graph, selection, remount key, actions, and copy.
- * @returns the ReactFlow canvas.
+ * @returns the ReactFlow canvas with its bottom toolbar.
  */
-export function GraphCanvas({ graph, selectedNodeId, version, actions, emptyText, legend }: GraphCanvasProps) {
+export function GraphCanvas({
+  graph, selectedNodeId, version, actions, emptyText, legend, kindLabels, searchPlaceholder, toolbarLabel, clearLabel,
+}: GraphCanvasProps) {
   const laid = useMemo(() => layoutGraph(graph.nodes, graph.edges), [graph])
-  const nodes = useMemo<Node[]>(() => graph.nodes.map((node) => ({
-    id: node.id,
-    type: 'harness',
-    position: laid.get(node.id) ?? { x: 0, y: 0 },
-    data: { node } satisfies HarnessNodeData,
-    draggable: true,
-  })), [graph, laid])
-  const edges = useMemo<Edge[]>(() => graph.edges.map((edge) => ({
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    type: 'harness',
-    data: { edgeType: edge.type } satisfies HarnessEdgeData,
-  })), [graph])
+  const rfRef = useRef<ReactFlowInstance | null>(null)
+
+  // Canvas-local toolbar state: free text search plus active category chips.
+  const [query, setQuery] = useState('')
+  const [activeKinds, setActiveKinds] = useState<ReadonlySet<CapabilityKind>>(new Set())
+  const [matchCursor, setMatchCursor] = useState(0)
+
+  const queryLower = query.trim().toLowerCase()
+  const kindActive = activeKinds.size > 0
+  const filterActive = queryLower !== '' || kindActive
+
+  /** Matching node ids under the current query + category filter, or null when no filter is active. */
+  const matchIds = useMemo<string[] | null>(() => {
+    if (!filterActive) return null
+    return computeMatchIds(graph, queryLower, activeKinds, kindLabels)
+  }, [graph, filterActive, queryLower, activeKinds, kindLabels])
+  const matchedSet = useMemo(() => new Set(matchIds ?? []), [matchIds])
+  const matchCount = matchIds?.length ?? 0
+  const safeCursor = matchCount === 0 ? 0 : Math.min(matchCursor, matchCount - 1)
+
+  /** Ids of nodes directly connected to the current selection (dependency neighbors). */
+  const relatedIds = useMemo(() => {
+    if (selectedNodeId === null) return new Set<string>()
+    const set = new Set<string>()
+    for (const edge of graph.edges) {
+      if (edge.source === selectedNodeId) set.add(edge.target)
+      else if (edge.target === selectedNodeId) set.add(edge.source)
+    }
+    return set
+  }, [selectedNodeId, graph.edges])
+
+  const nodes = useMemo<Node[]>(() => graph.nodes.map((node) => {
+    const matched = matchIds !== null && matchedSet.has(node.id)
+    return {
+      id: node.id,
+      type: 'harness',
+      position: laid.get(node.id) ?? { x: 0, y: 0 },
+      data: {
+        node,
+        matched,
+        dimmed: filterActive && !matched && !relatedIds.has(node.id),
+        related: relatedIds.has(node.id),
+      } satisfies HarnessNodeData,
+      draggable: true,
+      selected: selectedNodeId === node.id,
+    }
+  }), [graph, laid, matchIds, matchedSet, filterActive, relatedIds, selectedNodeId])
+  const nodeById = useMemo(() => new Map(nodes.map(node => [node.id, node])), [nodes])
+
+  const dimmedById = useMemo(() => {
+    const map = new Map<string, boolean>()
+    for (const node of nodes) {
+      const data = node.data as unknown as HarnessNodeData
+      map.set(node.id, data.dimmed === true)
+    }
+    return map
+  }, [nodes])
+  const edges = useMemo<Edge[]>(() => graph.edges.map((edge) => {
+    const active = selectedNodeId !== null
+      && (edge.source === selectedNodeId || edge.target === selectedNodeId)
+    return {
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      type: 'harness',
+      data: {
+        edgeType: edge.type,
+        dimmed: (dimmedById.get(edge.source) ?? false) || (dimmedById.get(edge.target) ?? false),
+        active,
+      } satisfies HarnessEdgeData,
+    }
+  }), [graph, dimmedById, selectedNodeId])
+
+  const fitToIds = useCallback((ids: readonly string[]): void => {
+    const instance = rfRef.current
+    if (instance === null || ids.length === 0) return
+    const targets = ids.map(id => nodeById.get(id)).filter((node): node is Node => node !== undefined)
+    void instance.fitView({ nodes: targets, padding: 0.25, duration: 300, maxZoom: 1.1 })
+  }, [nodeById])
+
+  const fitAll = useCallback((): void => {
+    void rfRef.current?.fitView({ padding: 0.2, duration: 300, maxZoom: 1.1 })
+  }, [])
+
+  /** Locate the first match: center/zoom to it and open it in the inspector. */
+  const locateFirst = useCallback((ids: readonly string[]): void => {
+    if (ids.length === 0) return
+    setMatchCursor(0)
+    fitToIds([ids[0]])
+    actions.selectNode(ids[0])
+  }, [fitToIds, actions])
+
+  const goToMatch = useCallback((index: number): void => {
+    if (matchIds === null || matchIds.length === 0) return
+    const next = ((index % matchIds.length) + matchIds.length) % matchIds.length
+    setMatchCursor(next)
+    fitToIds([matchIds[next]])
+    actions.selectNode(matchIds[next])
+  }, [matchIds, fitToIds, actions])
+
+  const toggleKind = useCallback((kind: CapabilityKind): void => {
+    // Single-select: clicking a chip locates exactly that capability kind;
+    // clicking the active chip clears the category filter.
+    const next = new Set<CapabilityKind>()
+    if (!activeKinds.has(kind)) next.add(kind)
+    setActiveKinds(next)
+    setMatchCursor(0)
+    const ids = next.size === 0 ? [] : graph.nodes.filter(node => next.has(node.kind)).map(node => node.id)
+    if (ids.length === 0) fitAll()
+    else locateFirst(ids)
+  }, [activeKinds, graph, fitAll, locateFirst])
+
+  const clearFilters = useCallback((): void => {
+    setQuery('')
+    setActiveKinds(new Set())
+    setMatchCursor(0)
+    fitAll()
+  }, [fitAll])
 
   return (
     <div className={css.canvas} data-dsh-preset-studio-panel="">
@@ -67,6 +219,7 @@ export function GraphCanvas({ graph, selectedNodeId, version, actions, emptyText
             minZoom={0.25}
             maxZoom={1.6}
             nodesConnectable={false}
+            onInit={(instance) => { rfRef.current = instance }}
             onNodeClick={(_, node) => { actions.selectNode(node.id === selectedNodeId ? null : node.id) }}
             onPaneClick={() => { actions.selectNode(null) }}
             onDragOver={(event) => {
@@ -80,14 +233,92 @@ export function GraphCanvas({ graph, selectedNodeId, version, actions, emptyText
             }}
           >
             <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
-            <Controls showInteractive={false} />
+            <Controls showInteractive={false} position="top-right" />
           </ReactFlow>
         )}
-      <div className={css.legend} aria-hidden="true">
-        <span className={css.legendItem}><span className={`${css.legendLine} ${css.legendData}`} />{legend.data}</span>
-        <span className={css.legendItem}><span className={`${css.legendLine} ${css.legendLifecycle}`} />{legend.lifecycle}</span>
-        <span className={css.legendItem}><span className={`${css.legendLine} ${css.legendService}`} />{legend.service}</span>
-      </div>
+
+      {nodes.length > 0 && (
+        <div className={css.canvasToolbar} role="toolbar" aria-label={toolbarLabel}>
+          <div className={css.toolbarLegend} aria-hidden="true">
+            <span className={css.legendItem}><span className={`${css.legendLine} ${css.legendData}`} />{legend.data}</span>
+            <span className={css.legendItem}><span className={`${css.legendLine} ${css.legendLifecycle}`} />{legend.lifecycle}</span>
+            <span className={css.legendItem}><span className={`${css.legendLine} ${css.legendService}`} />{legend.service}</span>
+          </div>
+
+          <div className={css.toolbarKinds}>
+            {KINDS.map(kind => (
+              <button
+                key={kind}
+                type="button"
+                className={activeKinds.has(kind) ? `${css.toolbarKind} ${css.toolbarKindActive}` : css.toolbarKind}
+                aria-pressed={activeKinds.has(kind)}
+                title={kindLabels[kind]}
+                onClick={() => { toggleKind(kind) }}
+              >
+                <span className={`${css.kindDot} ${KIND_CLASS[kind] ?? css.kindOther}`} />
+                <span>{kindLabels[kind]}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className={css.toolbarSearch}>
+            <input
+              className={css.toolbarInput}
+              type="text"
+              value={query}
+              placeholder={searchPlaceholder}
+              aria-label={searchPlaceholder}
+              onChange={(event) => {
+                const value = event.target.value
+                setQuery(value)
+                setMatchCursor(0)
+                const ql = value.trim().toLowerCase()
+                // Only auto-locate when a filter is actually active (query or kind).
+                if (ql !== '' || activeKinds.size > 0) {
+                  const ids = computeMatchIds(graph, ql, activeKinds, kindLabels)
+                  if (ids.length > 0) locateFirst(ids)
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && matchCount > 0) goToMatch(safeCursor)
+              }}
+            />
+            {filterActive && (
+              <span className={css.toolbarCount} role="status">
+                {matchCount === 0 ? '0' : `${safeCursor + 1}/${matchCount}`}
+              </span>
+            )}
+            <button
+              type="button"
+              className={css.toolbarNav}
+              disabled={matchCount < 2}
+              aria-label="↑"
+              onClick={() => { goToMatch(safeCursor - 1) }}
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              className={css.toolbarNav}
+              disabled={matchCount < 2}
+              aria-label="↓"
+              onClick={() => { goToMatch(safeCursor + 1) }}
+            >
+              ↓
+            </button>
+            {(query !== '' || activeKinds.size > 0) && (
+              <button
+                type="button"
+                className={css.toolbarClear}
+                aria-label={clearLabel}
+                onClick={clearFilters}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

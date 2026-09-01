@@ -1,12 +1,14 @@
 /**
- * Preset Studio settings section: the preset selector, the three views
- * (Harness Graph / Composition YAML / Diff), the copy dialog (the Host's only
- * authoring write), and the delete confirmation.
+ * Preset Studio body: the compact header (current preset + badges), the three
+ * views (Harness Graph / Composition YAML / Diff), the copy dialog (the Host's
+ * only authoring write), and the delete confirmation. Preset selection lives
+ * in the graph view's explorer rail. Shared by every mount surface (full-page
+ * home studio; formerly also the settings section).
  */
 import { useEffect } from 'react'
 import { Button, Modal, Pill } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { InjectFace, PropsLocale, PropsRuntime, Translate } from '@deepseek-ai/dsh-client-ui-slots'
+import type { InjectFace, Translate } from '@deepseek-ai/dsh-client-ui-slots'
 import { copyBlocker, presetDisplayName, type PresetStudioState } from './controller.ts'
 import type { StudioView } from '../core/types.ts'
 import type { PresetStudioKey } from './locales.ts'
@@ -18,7 +20,7 @@ import { ComposerPanel } from './panels/ComposerPanel.tsx'
 import { DiffPanel } from './panels/DiffPanel.tsx'
 import css from './presetstudio.module.css'
 
-/** Registration-side business face for the studio section. */
+/** Registration-side business face for the studio body. */
 export interface PresetStudioSectionInjected {
   hooks: {
     /** Page snapshot bound by the renderer as usePresetStudio. */
@@ -42,14 +44,10 @@ export interface PresetStudioSectionInjected {
     remove: () => Promise<void>
     setDiffSide: (side: 'left' | 'right', id: string | null) => Promise<void>
     openPresetLocation: (id: string) => Promise<void>
+    openHome: () => void
+    closeHome: () => void
   }
 }
-
-/** Full component props. */
-export type PresetStudioSectionProps =
-  PropsRuntime<'settings.section'>
-  & PropsLocale<'preset-studio'>
-  & InjectFace<PresetStudioSectionInjected>
 
 /** Resolve the transient notice line into localized copy. */
 function noticeText(notice: string, t: Translate<PresetStudioKey>): string {
@@ -69,12 +67,24 @@ const VIEWS: readonly { id: StudioView; key: 'view.graph' | 'view.yaml' | 'view.
 ]
 
 /**
- * Render the studio section.
- * @param props - runtime share (close), locale, and the bound store/actions.
- * @returns the section, or an unavailable/error/loading state.
+ * The common studio body, rendered by the full-page home surface from the
+ * same controller face.
  */
-export function PresetStudioSection(props: PresetStudioSectionProps) {
-  const { usePresetStudio, t, actions } = props
+export interface PresetStudioBodyProps {
+  /** Selector hook over the studio controller snapshot. */
+  usePresetStudio: InjectFace<PresetStudioSectionInjected>['usePresetStudio']
+  /** Locale seat. */
+  t: Translate<PresetStudioKey>
+  /** Bound controller actions. */
+  actions: PresetStudioSectionInjected['actions']
+}
+
+/**
+ * Render the studio body.
+ * @param props - the bound store/actions and locale copy.
+ * @returns the studio, or an unavailable/error/loading state.
+ */
+export function PresetStudioBody({ usePresetStudio, t, actions }: PresetStudioBodyProps) {
   const state = usePresetStudio(snapshot => snapshot)
   useEffect(() => { void actions.load() }, [actions])
 
@@ -110,29 +120,19 @@ export function PresetStudioSection(props: PresetStudioSectionProps) {
 
   return (
     <div className={css.studio}>
-      <h2 className={css.title}>{t('nav')}</h2>
-      <p className={css.intro}>{t('intro')}</p>
       <div className={css.header}>
-        <select
-          className={css.select}
-          value={state.selectedId ?? ''}
-          aria-label={t('preset.selector')}
-          onChange={(event) => { void actions.selectPreset(event.target.value) }}
-        >
-          {state.roster.map(row => (
-            <option key={row.id} value={row.id}>{presetDisplayName(row)}</option>
-          ))}
-        </select>
+        <h2 className={css.title}>{t('nav')}</h2>
         {selectedRow === undefined
           ? null
           : (
-            <>
+            <div className={css.meta}>
+              <span className={css.currentName}>{presetDisplayName(selectedRow)}</span>
               <Pill className={selectedRow.trust === 'system' ? css.trustSystem : css.trustUser}>
                 {t(selectedRow.trust === 'system' ? 'trust.system' : 'trust.user')}
               </Pill>
               {selectedRow.isDefault ? <Pill className={css.trustSystem}>{t('badge.default')}</Pill> : null}
               {selectedRow.broken === undefined ? null : <Pill className={css.trustUser}>{t('badge.broken')}</Pill>}
-            </>
+            </div>
           )}
       </div>
       {state.error === null ? null : <p className={css.errorLine} role="alert">{state.error}</p>}
@@ -174,6 +174,20 @@ export function PresetStudioSection(props: PresetStudioSectionProps) {
                 lifecycle: t('graph.legend.membership'),
                 service: t('graph.legend.service'),
               }}
+              kindLabels={{
+                model: t('inspector.kind.model'),
+                loop: t('inspector.kind.loop'),
+                memory: t('inspector.kind.memory'),
+                tool: t('inspector.kind.tool'),
+                skill: t('inspector.kind.skill'),
+                storage: t('inspector.kind.storage'),
+                persona: t('inspector.kind.persona'),
+                group: t('inspector.kind.group'),
+                other: t('inspector.kind.other'),
+              }}
+              searchPlaceholder={t('graph.searchPlaceholder')}
+              toolbarLabel={t('graph.toolbar')}
+              clearLabel={t('graph.clear')}
             />
             <div className={`${css.rail} ${css.railRight}`}>
               <InspectorPanel

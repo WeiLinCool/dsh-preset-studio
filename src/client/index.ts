@@ -24,7 +24,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
 import { PresetStudioController } from './controller.ts'
 import { claimPresetStudioApply, releasePresetStudioApply } from './apply-guard.ts'
-import { mountSection } from './mount-section.tsx'
+import { mountHome } from './mount-home.tsx'
 import { PresetStudioSettingsCard, PresetStudioSettingsCardController, type PresetStudioSettings } from './PresetStudioSettingsCard.tsx'
 import { en, zh, type PresetStudioKey } from './locales.ts'
 import { presetStudioRemote } from './wire.ts'
@@ -79,10 +79,9 @@ export function apply(ctx: ClientContext): void {
   }, PresetStudioSettingsCard))
 
   const remote = presetStudioRemote(ctx)
-  const viewLabel = ctx.locale.bind(NS)
 
-  // The section mounts once the settings scope settles; while the scope is
-  // still loading, the composition default is unknown, so nothing mounts
+  // The home surfaces mount once the settings scope settles; while the scope
+  // is still loading, the composition default is unknown, so nothing mounts
   // yet. Only an unavailable scope (no settings surface served) falls back
   // to the composition default (enabled).
   let uiDisposer: (() => void) | undefined
@@ -95,10 +94,10 @@ export function apply(ctx: ClientContext): void {
 
     const disposers: Array<() => void> = []
     try {
-      disposers.push(mountSection(ctx, controller, () => viewLabel('nav')))
+      disposers.push(mountHome(ctx, controller))
     } catch (error) {
-      // Surface failures degrade the section, never the GUI.
-      console.error('[dsh-preset-studio] mount failed:', error)
+      // Home-surface failures degrade the launcher/page, never the GUI.
+      console.error('[dsh-preset-studio] home mount failed:', error)
     }
 
     // The roster is a live directory and the default preset is a settings

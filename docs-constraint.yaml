@@ -1,0 +1,88 @@
+# Documentation Constraint Configuration
+# Schema: docs-constraint/v1
+
+schema: docs-constraint/v1
+
+# ============================================================
+# TIER TAXONOMY - one home per fact
+# ============================================================
+
+tiers:
+  - name: root-agents
+    pattern: "AGENTS.md"
+    job: "Standing orders for agents"
+    budget: 1600
+    required: true
+
+  - name: doc-standards
+    pattern: "docs/AGENTS.md"
+    job: "Documentation standard and tier taxonomy"
+    budget: 1600
+    required: true
+
+  - name: subsystems
+    pattern: "docs/**/*.md"
+    job: "Type definitions and semantics (unbudgeted)"
+    budget: null
+    required: false
+
+  - name: package-readme
+    pattern: "README.md"
+    job: "Per-package contract (bilingual, budgeted)"
+    budget: 1200
+    required: true
+
+  - name: agent-notes
+    pattern: ".agents/notes/*/*.md"
+    job: "Decision rationale (unbudgeted)"
+    budget: null
+    required: false
+
+# ============================================================
+# BILINGUAL PAIRING - three-file triplets
+# ============================================================
+
+i18n:
+  enabled: true
+  source_language: en
+  target_languages:
+    - zh
+  suffix_map:
+    zh: ".zh.md"
+  scope_patterns:
+    - "docs/**/*.md"
+    - "README.md"
+  exclusions:
+    # Agent instructions / standards - maintained in English only
+    - "AGENTS.md"
+    - "docs/AGENTS.md"
+    - "CLAUDE.md"
+    # Archived Agent Notes are frozen
+    - ".agents/notes/archived"
+
+# ============================================================
+# MECHANICAL GATES
+# ============================================================
+
+gates:
+  verify_doc_budgets: true
+  verify_md_links: true
+  verify_translation_pairing: true
+  verify_agent_note_format: true
+  verify_agent_note_classification: true
+  verify_archived_agent_notes: false
+
+gate_config:
+  verify_doc_budgets:
+    headroom_percent: 5
+    fail_on_missing: true
+
+# ============================================================
+# CI INTEGRATION
+# ============================================================
+
+ci:
+  platform: github
+  on_pull_request: true
+  on_push_main: true
+  fail_on_violation: true

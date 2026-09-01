@@ -2,24 +2,153 @@
  * section follows the shell's theme and skins. */
 
 .studio {
+  flex: 1;
+  min-height: 0;
   min-width: 0;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+  display: flex;
+  overflow-y: auto;
+}
+
+/* ── home launcher ──────────────────────────────────────────────────────── */
+
+.homeButton {
+  appearance: none;
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 16px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  display: inline-flex;
+}
+
+.homeButtonCompact {
+  font-size: 12px;
+  min-height: 24px;
+  padding: 0 8px;
+}
+
+.homeButton:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.homeButtonGlyph {
+  background: var(--dsw-alias-brand-primary);
+  border-radius: 50%;
+  flex: none;
+  height: 6px;
+  width: 6px;
+}
+
+/* ── full-page studio overlay ───────────────────────────────────────────── */
+
+.pageOverlay {
+  background: var(--dsw-alias-bg-layer-1);
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+}
+
+.pageHeader {
+  align-items: center;
+  background: var(--dsw-alias-bg-layer-2);
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+  gap: 12px;
+  justify-content: space-between;
+  padding: 10px 20px;
   display: flex;
 }
+
+.pageTitle {
+  color: var(--dsw-alias-label-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.pageClose {
+  appearance: none;
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
+  height: 28px;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  width: 28px;
+  display: inline-flex;
+}
+
+.pageClose:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+.pageBody {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px 20px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The full page gives the three-pane graph room the settings dialog cannot. */
+.pageBody .graphBody {
+  grid-template-columns: 300px minmax(0, 1fr) 360px;
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+
 
 /* ── header ─────────────────────────────────────────────────────────────── */
 
 .header {
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  justify-content: space-between;
   display: flex;
+}
+
+.meta {
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.currentName {
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 320px;
 }
 
 .title {
   color: var(--dsw-alias-label-primary);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.4;
   margin: 0;
@@ -27,8 +156,8 @@
 
 .intro {
   color: var(--dsw-alias-label-tertiary);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
   margin: 0;
 }
 
@@ -96,7 +225,7 @@
   font-size: 13px;
   font-weight: 500;
   margin-bottom: -1px;
-  padding: 7px 12px;
+  padding: 5px 10px;
 }
 
 .tab:hover {
@@ -136,6 +265,7 @@
 .canvas {
   background: var(--dsw-alias-bg-layer-1);
   min-width: 0;
+  padding-bottom: 44px;
   position: relative;
 }
 
@@ -291,20 +421,6 @@
 
 /* ── graph canvas chrome ────────────────────────────────────────────────── */
 
-.legend {
-  align-items: center;
-  background: var(--dsw-alias-bg-layer-3);
-  border: 1px solid var(--dsw-alias-border-l2);
-  border-radius: 8px;
-  bottom: 12px;
-  gap: 10px;
-  left: 12px;
-  padding: 6px 10px;
-  position: absolute;
-  z-index: 5;
-  display: flex;
-}
-
 .legendItem {
   align-items: center;
   color: var(--dsw-alias-label-tertiary);
@@ -324,6 +440,167 @@
 
 .legendLifecycle { background: #8a6cd9; }
 .legendService { background: #2f7de1; }
+
+/* ── node/edge selection interactivity ───────────────────────────────────── */
+
+.edgeActive {
+  stroke-width: 2.6;
+}
+
+/* Animated dash overlay showing "dependency flow" along a selected edge. */
+.edgeFlow {
+  animation: edge-dep-flow 0.7s linear infinite;
+}
+
+@keyframes edge-dep-flow {
+  to { stroke-dashoffset: -14; }
+}
+
+/* The clicked node: brand ring + soft glow. */
+.nodeActive {
+  box-shadow:
+    0 0 0 1px var(--dsw-alias-brand-primary),
+    0 0 0 3px rgba(124, 108, 240, 0.14),
+    0 0 14px rgba(124, 108, 240, 0.3);
+}
+
+/* A direct dependency neighbor of the clicked node. */
+.nodeRelated {
+  border-color: var(--dsw-alias-label-dimmed);
+  box-shadow: 0 0 0 1px var(--dsw-alias-label-dimmed);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edgeFlow {
+    animation: none;
+  }
+}
+
+/* ── bottom canvas toolbar ──────────────────────────────────────────────── */
+
+.canvasToolbar {
+  align-items: center;
+  background: var(--dsw-alias-bg-layer-3);
+  border-top: 1px solid var(--dsw-alias-border-l2);
+  bottom: 0;
+  gap: 12px;
+  left: 0;
+  overflow-x: auto;
+  padding: 6px 10px;
+  position: absolute;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.toolbarLegend {
+  align-items: center;
+  gap: 10px;
+  display: flex;
+  flex: none;
+}
+
+.toolbarKinds {
+  align-items: center;
+  gap: 4px;
+  display: flex;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.toolbarKind {
+  appearance: none;
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 14px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  gap: 5px;
+  line-height: 1;
+  min-height: 22px;
+  padding: 0 8px;
+  display: inline-flex;
+}
+
+.toolbarKind:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+.toolbarKindActive {
+  background: var(--dsw-alias-bg-module-platform);
+  border-color: var(--dsw-alias-brand-primary);
+  color: var(--dsw-alias-label-primary);
+}
+
+.toolbarSearch {
+  align-items: center;
+  gap: 6px;
+  display: flex;
+  flex: none;
+  margin-left: auto;
+}
+
+.toolbarInput {
+  appearance: none;
+  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 14px;
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 12px;
+  min-height: 24px;
+  padding: 2px 10px;
+  width: 200px;
+}
+
+.toolbarInput:focus {
+  border-color: var(--dsw-alias-brand-primary);
+  outline: none;
+}
+
+.toolbarCount {
+  color: var(--dsw-alias-label-tertiary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  flex: none;
+}
+
+.toolbarNav,
+.toolbarClear {
+  appearance: none;
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  height: 22px;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  width: 22px;
+  display: inline-flex;
+}
+
+.toolbarNav:hover:not(:disabled),
+.toolbarClear:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+.toolbarNav:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
 
 .emptyState {
   align-items: center;
@@ -356,6 +633,16 @@
 .nodeSelected {
   border-color: var(--dsw-alias-brand-primary);
   box-shadow: 0 0 0 1px var(--dsw-alias-brand-primary);
+}
+
+/* Search / category filtering states. */
+.nodeMatch {
+  border-color: var(--dsw-alias-brand-primary);
+  box-shadow: 0 0 0 1.5px var(--dsw-alias-brand-primary);
+}
+
+.nodeDimmed {
+  opacity: 0.22;
 }
 
 .nodeHead {

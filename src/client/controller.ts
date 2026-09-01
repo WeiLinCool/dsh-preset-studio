@@ -81,6 +81,8 @@ export interface PresetStudioState {
   deleting: boolean
   /** Transient user feedback line. */
   notice: string | null
+  /** Whether the full-page studio is open from the home entry. */
+  homeOpen: boolean
 }
 
 const INITIAL: PresetStudioState = {
@@ -106,6 +108,7 @@ const INITIAL: PresetStudioState = {
   pendingDeleteId: null,
   deleting: false,
   notice: null,
+  homeOpen: false,
 }
 
 export interface PresetStudioControllerDefaults {
@@ -395,5 +398,15 @@ export class PresetStudioController {
   /** Show one transient feedback line (a locale key or free text). */
   notify(text: string): void {
     this.set({ notice: text })
+  }
+
+  /** Open the full-page studio from the home entry. */
+  openHome(): void {
+    this.set({ homeOpen: true })
+  }
+
+  /** Close the full-page studio. */
+  closeHome(): void {
+    this.set({ homeOpen: false })
   }
 }
